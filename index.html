@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbiosis Defense</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Main Menu -->
+        <div id="main-menu" class="screen">
+            <h1 class="game-title">Symbiosis Defense</h1>
+            <div class="menu-buttons">
+                <button id="btn-start-game" class="menu-btn">ゲーム開始</button>
+                <button id="btn-deck-builder" class="menu-btn">デッキ編成</button>
+                <button id="btn-tech-tree" class="menu-btn">技術ツリー (強化)</button>
+                <button id="btn-gacha" class="menu-btn">種ガチャ</button>
+            </div>
+            <div class="menu-footer">
+                <p>Created with Gemini</p>
+            </div>
+        </div>
+
+        <!-- Tech Tree Screen -->
+        <div id="tech-tree-screen" class="screen hidden">
+            <div class="screen-header">
+                <button class="back-btn" data-target="main-menu">← 戻る</button>
+                <h2>技術ツリー (強化)</h2>
+                <div style="margin-right:20px;">💎 <span id="tech-gems">0</span></div>
+            </div>
+            <div id="tech-list" class="scroll-list">
+                <!-- Tech Items -->
+            </div>
+        </div>
+
+        <!-- Stage Select -->
+        <div id="stage-select" class="screen hidden">
+            <div class="screen-header">
+                <button class="back-btn" data-target="main-menu">← 戻る</button>
+                <h2>ステージ選択</h2>
+                <div style="width:50px"></div>
+            </div>
+            <div id="stage-list" class="scroll-container">
+                <!-- Javascript Generated -->
+            </div>
+        </div>
+
+        <!-- Deck Builder -->
+        <div id="deck-builder" class="screen hidden">
+            <div class="screen-header">
+                <button class="back-btn" data-target="main-menu">← 保存して戻る</button>
+                <h2>デッキ編成</h2>
+                <div style="width:50px"></div>
+            </div>
+            <div class="deck-section">
+                <h3>現在のデッキ (最大5つ)</h3>
+                <div id="current-deck" class="card-row"></div>
+            </div>
+            <div class="deck-section" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+                <h3>所持している種</h3>
+                <div id="inventory-list" class="card-grid"></div>
+            </div>
+        </div>
+
+        <!-- Gacha Screen -->
+        <div id="gacha-screen" class="screen hidden">
+            <div class="screen-header">
+                <button class="back-btn" data-target="main-menu">← 戻る</button>
+                <h2>種ガチャ</h2>
+                <div class="resource-panel">
+                    <span>💎</span>
+                    <span id="gem-count" class="value">0</span>
+                </div>
+            </div>
+            <div class="gacha-center">
+                <div class="gacha-pot">🏺</div>
+                <div class="gacha-controls">
+                    <button id="btn-pull-1" class="gacha-btn">1回引く (100💎)</button>
+                    <button id="btn-pull-10" class="gacha-btn">10回引く (1000💎)</button>
+                </div>
+            </div>
+            <div id="gacha-results" class="gacha-results hidden">
+                <!-- Results go here -->
+            </div>
+        </div>
+
+        <!-- In-Game UI -->
+        <div id="game-ui" class="hidden">
+            <div class="hud-top">
+                <div class="resource-panel">
+                    <span style="color:#ff6b6b;">❤️ HP:</span>
+                    <span id="health-display" class="value" style="color:#ff6b6b;">100</span>
+                </div>
+                <div class="resource-panel">
+                    <span style="color:#76c7c0;">💧 Mana:</span>
+                    <span id="mana-display" class="value">100</span>
+                </div>
+                <div class="resource-panel" style="margin-left:20px;">
+                    <span>💀 Enemies:</span>
+                    <span id="enemy-count" class="value">0</span>
+                </div>
+                <div class="resource-panel">
+                    <span>🌱 Plants:</span>
+                    <span id="plant-count" class="value">0/10</span>
+                </div>
+                <button id="btn-return-menu" class="menu-btn" style="padding:5px 10px; font-size:0.8rem;">降参</button>
+            </div>
+
+            <div class="hud-bottom">
+                <div class="controls-panel">
+                    <button id="btn-shovel" class="game-plant-btn" style="border:2px solid #666; background:#444;">
+                        <span>⛏️</span>
+                    </button>
+                    <div id="plant-bar" style="display:flex; gap:5px;"></div>
+                </div>
+                <div style="margin-left: 20px;">
+                    <button id="next-wave-btn" style="display:none;">次のウェーブへ</button>
+                </div>
+            </div>
+
+            <!-- Game Over Modal -->
+            <div id="game-over-modal" class="modal hidden">
+                <h2 id="game-over-title">Game Over</h2>
+                <button class="menu-btn back-btn" data-target="main-menu">メニューに戻る</button>
+            </div>
+        </div>
+    </div>
+    <!-- Game Scripts (Order Matters) -->
+    <script src="src/PlantData.js"></script>
+    <script src="src/LevelData.js"></script>
+    <script src="src/PlayerState.js"></script>
+    <script src="src/GachaSystem.js"></script>
+    <script src="src/Grid.js"></script>
+    <script src="src/Enemy.js"></script>
+    <script src="src/Projectile.js"></script>
+    <script src="src/Plant.js"></script>
+    <script src="src/Game.js"></script>
+    <script src="src/main.js"></script>
+</body>
+
+</html>

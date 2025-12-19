@@ -1,0 +1,803 @@
+:root {
+    --bg-color: #1a2f23;
+    --canvas-bg: #2d4a3e;
+    --ui-text: #e0f2e9;
+    --accent-color: #76c7c0;
+    --accent-dark: #4a9c95;
+    --danger-color: #ff6b6b;
+    --card-bg: rgba(255, 255, 255, 0.1);
+    --card-hover: rgba(255, 255, 255, 0.2);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--ui-text);
+    font-family: 'Zen Maru Gothic', sans-serif;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#game-container {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    background-color: var(--canvas-bg);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Screen Layouts */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(26, 47, 35, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+    transition: opacity 0.3s;
+}
+
+.screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.screen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.game-title {
+    font-size: 4rem;
+    color: var(--accent-color);
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    margin-bottom: 40px;
+    align-self: center;
+    margin-top: 100px;
+}
+
+/* Buttons */
+button {
+    font-family: inherit;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 200px;
+    align-self: center;
+}
+
+.menu-btn {
+    background: var(--card-bg);
+    color: white;
+    padding: 15px;
+    font-size: 1.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu-btn:hover {
+    background: var(--card-hover);
+    transform: translateY(-2px);
+}
+
+.menu-btn.primary {
+    background: var(--accent-color);
+    color: #0f241a;
+    font-weight: bold;
+}
+
+.menu-btn.primary:hover {
+    background: var(--accent-dark);
+}
+
+.back-btn {
+    background: transparent;
+    color: var(--ui-text);
+    font-size: 1.2rem;
+}
+
+/* Stage List */
+.scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.stage-card {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    padding: 15px 25px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.stage-card:hover {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-color);
+}
+
+.stage-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.1);
+    margin-right: 20px;
+    font-family: 'Impact', sans-serif;
+    min-width: 40px;
+    text-align: center;
+}
+
+.stage-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.stage-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stage-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--ui-text);
+}
+
+.stage-reward {
+    font-size: 0.9rem;
+    color: #ffd700;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.stage-details {
+    font-size: 0.8rem;
+    color: #aaa;
+    display: flex;
+    gap: 15px;
+}
+
+.stage-action {
+    margin-left: 20px;
+}
+
+.play-btn {
+    background: var(--accent-color);
+    color: #0f1c15;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.play-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
+.play-btn:disabled {
+    background: #555;
+    color: #888;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.stage-card.locked {
+    opacity: 0.5;
+    cursor: default;
+    filter: grayscale(1);
+}
+
+/* Deck Builder */
+.card-row,
+.card-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-height: 100px;
+}
+
+.card-grid {
+    overflow-y: auto;
+    max-height: 250px;
+    align-content: flex-start;
+}
+
+.plant-card {
+    width: 80px;
+    height: 100px;
+    background: var(--card-bg);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    cursor: pointer;
+    position: relative;
+}
+
+.plant-card.selected {
+    border-color: var(--accent-color);
+    background: rgba(118, 199, 192, 0.2);
+}
+
+.plant-card img,
+.plant-card .icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.plant-card .cost {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 0.7rem;
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+/* Gacha */
+.gacha-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.gacha-pot {
+    font-size: 8rem;
+    margin-bottom: 30px;
+    transition: transform 0.2s;
+    filter: drop-shadow(0 0 20px rgba(255, 107, 107, 0.5));
+}
+
+.gacha-pot.shaking {
+    animation: shake 0.1s infinite;
+}
+
+@keyframes shake {
+    0% {
+        transform: translate(2px, 2px) rotate(0deg);
+    }
+
+    10% {
+        transform: translate(-2px, -4px) rotate(-10deg);
+    }
+
+    20% {
+        transform: translate(-6px, 0px) rotate(10deg);
+    }
+
+    30% {
+        transform: translate(6px, 4px) rotate(0deg);
+    }
+
+    40% {
+        transform: translate(2px, -2px) rotate(10deg);
+    }
+
+    50% {
+        transform: translate(-2px, 4px) rotate(-10deg);
+    }
+
+    60% {
+        transform: translate(-6px, 2px) rotate(0deg);
+    }
+
+    70% {
+        transform: translate(6px, 2px) rotate(-10deg);
+    }
+
+    80% {
+        transform: translate(-2px, -2px) rotate(10deg);
+    }
+
+    90% {
+        transform: translate(2px, 4px) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(2px, -4px) rotate(-10deg);
+    }
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.gacha-controls {
+    display: flex;
+    gap: 20px;
+}
+
+.gacha-btn {
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    background: linear-gradient(45deg, #ff6b6b, #eaac8b);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.gacha-results {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 50px;
+    box-sizing: border-box;
+    z-index: 10;
+}
+
+.gacha-results.hidden {
+    display: none;
+}
+
+.gacha-item-reveal {
+    width: 100px;
+    height: 120px;
+    background: #fff;
+    color: #333;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gacha-item-reveal.new::after {
+    content: "NEW!";
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: gold;
+    color: black;
+    font-size: 0.7rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* In-Game HUD */
+#game-ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+#game-ui.hidden {
+    display: none;
+}
+
+.hud-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    pointer-events: auto;
+}
+
+.hud-bottom {
+    display: flex;
+    justify-content: center;
+    pointer-events: auto;
+}
+
+.resource-panel {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 10px 20px;
+    border-radius: 20px;
+    backdrop-filter: blur(5px);
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    color: white;
+}
+
+.value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.controls-panel {
+    display: flex;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.game-plant-btn {
+    width: 60px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid transparent;
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+.game-plant-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.game-plant-btn.selected {
+    border-color: var(--accent-color);
+    background: rgba(118, 199, 192, 0.3);
+}
+
+.game-plant-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+#next-wave-btn {
+    background: var(--accent-color);
+    color: #1a2f23;
+    padding: 10px 20px;
+    font-size: 0.7rem;
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+/* Gacha */
+.gacha-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.gacha-pot {
+    font-size: 8rem;
+    margin-bottom: 30px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.gacha-controls {
+    display: flex;
+    gap: 20px;
+}
+
+.gacha-btn {
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    background: linear-gradient(45deg, #ff6b6b, #eaac8b);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.gacha-results {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 50px;
+    box-sizing: border-box;
+    z-index: 10;
+}
+
+.gacha-results.hidden {
+    display: none;
+}
+
+.gacha-item-reveal {
+    width: 100px;
+    height: 120px;
+    background: #fff;
+    color: #333;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gacha-item-reveal.new::after {
+    content: "NEW!";
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: gold;
+    color: black;
+    font-size: 0.7rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* In-Game HUD */
+#game-ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+#game-ui.hidden {
+    display: none;
+}
+
+.hud-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    pointer-events: auto;
+}
+
+.hud-bottom {
+    display: flex;
+    justify-content: center;
+    pointer-events: auto;
+}
+
+.resource-panel {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 10px 20px;
+    border-radius: 20px;
+    backdrop-filter: blur(5px);
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    color: white;
+}
+
+.value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.controls-panel {
+    display: flex;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.game-plant-btn {
+    width: 60px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid transparent;
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+.game-plant-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.game-plant-btn.selected {
+    border-color: var(--accent-color);
+    background: rgba(118, 199, 192, 0.3);
+}
+
+.game-plant-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+#next-wave-btn {
+    background: var(--accent-color);
+    color: #1a2f23;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* Modal */
+.modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    pointer-events: auto;
+
+    /* Layout constraints */
+    width: 600px;
+    max-width: 90%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--accent-color);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.scroll-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+/* Scrollbar styling */
+.scroll-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scroll-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.scroll-list::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+/* Cooldown Overlay */
+.game-plant-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.cooldown-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 10;
+    pointer-events: none;
+}
